@@ -18,6 +18,16 @@ app.get("/", (req, res) => {
   res.send("Hello world from Express");
 });
 
+app.get("/todos", async (req, res) => {
+  try {
+    const todos = await prisma.todo.findMany();
+    res.json(todos);
+  } catch (err) {
+    console.error("Error fetching todos:", err);
+    res.status(500).json({ error: "Error fetching todos" });
+  }
+});
+
 app.post("/todos", async (req, res) => {
   const { title, description, dueDate, priority, status } = req.body;
 
@@ -34,7 +44,7 @@ app.post("/todos", async (req, res) => {
     res.status(201).json(todo);
   } catch (err) {
     console.error("Error creating todo:", err);
-    res.status(500).json({error: "Error creating todo"});
+    res.status(500).json({ error: err.message, stack: err.stack });
   }
 });
 

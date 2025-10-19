@@ -13,11 +13,24 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum TodoStatus {
+  PENDING
+  ONGOING
+  COMPLETED
+  CANCELLED
+}
+
+enum PriorityLevel {
+  HIGH
+  MEDIUM
+  LOW
+}
+
 model Todo {
   id Int @id @default(autoincrement())
   title String
   description String 
   dueDate DateTime
-  priority String
-  status Boolean
+  priority PriorityLevel
+  status TodoStatus
 }
