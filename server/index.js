@@ -28,6 +28,24 @@ app.get("/todos", async (req, res) => {
   }
 });
 
+app.get("/todos/:id", async (req, res) => {
+  const { id } = req.params;
+  try {
+    const todo = await prisma.todo.findUnique({
+      where: { id: Number(id) },
+    });
+
+    if (!todo) {
+      return res.status(404).json({ error: "Todo not found" });
+    }
+
+    res.json(todo);
+  } catch (err) {
+    console.error("Error fetching todo:", err);
+    res.status(500).json({ erorr: err.message, stack: err.stack });
+  }
+});
+
 app.post("/todos", async (req, res) => {
   const { title, description, dueDate, priority, status } = req.body;
 
@@ -44,6 +62,44 @@ app.post("/todos", async (req, res) => {
     res.status(201).json(todo);
   } catch (err) {
     console.error("Error creating todo:", err);
+    res.status(500).json({ error: err.message, stack: err.stack });
+  }
+});
+
+app.put("/todos/:id", async (req, res) => {
+  const { id } = req.params;
+  const { title, description, dueDate, priority, status } = req.body;
+
+  try {
+    const updated = await prisma.todo.update({
+      where: { id: Number(id) },
+      data: {
+        title,
+        description,
+        dueDate: new Date(dueDate),
+        priority,
+        status,
+      },
+    });
+
+    res.json(updated);
+  } catch (err) {
+    console.error("Error updating todo:", err);
+    res.status(500).json({ error: err.message, stack: err.stack });
+  }
+});
+
+app.delete("/todos/:id", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    await prisma.todo.delete({
+      where: { id: Number(id) },
+    });
+
+    res.json({ message: "Todo deleted successfully" });
+  } catch (err) {
+    console.error("Error deleting todo:", err);
     res.status(500).json({ error: err.message, stack: err.stack });
   }
 });
